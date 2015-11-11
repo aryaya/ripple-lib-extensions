@@ -1,7 +1,7 @@
 var _ = require('lodash');
 var BigNumber = require('bignumber.js');
 var normalizeNodes = require('./utils').normalizeNodes;
-var dropsToXRP = require('./utils').dropsToXRP;
+var dropsToICC = require('./utils').dropsToICC;
 
 function parseBalance(balance) {
   return new BigNumber(balance.value || balance);
@@ -18,7 +18,7 @@ function computeBalanceChange(node) {
   }
 }
 
-function parseXRPBalanceChange(node) {
+function parseICCBalanceChange(node) {
   var balanceChange = computeBalanceChange(node);
 
   if(balanceChange.isZero()) {
@@ -29,8 +29,8 @@ function parseXRPBalanceChange(node) {
     address: node.finalFields.Account || node.newFields.Account,
     balance_change: {
       counterparty: '',
-      currency: 'XRP',
-      value: dropsToXRP(balanceChange).toString()
+      currency: 'ICC',
+      value: dropsToICC(balanceChange).toString()
     }
   };
 }
@@ -91,7 +91,7 @@ function groupByAddress(balanceChanges) {
 function parseBalanceChanges(metadata) {
   var balanceChanges = normalizeNodes(metadata).map(function(node) {
     if (node.entryType === 'AccountRoot') {
-      return [parseXRPBalanceChange(node)];
+      return [parseICCBalanceChange(node)];
     } else if (node.entryType === 'RippleState') {
       return parseTrustlineBalanceChanges(node);
     } else {
